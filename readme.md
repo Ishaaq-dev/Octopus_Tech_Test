@@ -22,7 +22,7 @@ If after three times the api is still responding with a 500 status error, then I
 - open terminal
 - `cd` into the cloned project (top-level: `~/path/to/Octopus-Tech-Test`)
 - create a copy of `.env copy` file
-- rename this file to `.env`
+- rename the copy you have just made to `.env`
 - input the following details into `.env`:
   - API_URL
   - API_KEY 
