@@ -18,14 +18,19 @@ If after three times the api is still responding with a 500 status error, then I
 
 # How to run
 
+## Step 1 - Download
 - clone the project
 - open terminal
 - `cd` into the cloned project (top-level: `~/path/to/Octopus-Tech-Test`)
+
+## Step 2 - Prep
 - create a copy of `.env copy` file
 - rename the copy you have just made to `.env`
 - input the following details into `.env`:
   - API_URL
   - API_KEY 
+
+## Step 3 - installation and run
 - install dependencies - `npm install`
 - run program - `npm start`
 - run unit tests - `npm test`
