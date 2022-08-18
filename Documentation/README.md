@@ -22,8 +22,7 @@ Your task is to write a small program that:
 
 1. Retrieves all outages from the `GET /outages` endpoint
 2. Retrieves information from the `GET /site-info/{siteId}` endpoint for the site with the ID `norwich-pear-tree`
-3. Filters out any outages that began before `2022-01-01T00:00:00.000Z` or don't have an ID that is in the list of
-   devices in the site information
+3. Filters out any outages that began before `2022-01-01T00:00:00.000Z` or don't have an ID that is in the list of devices in the site information
 4. For the remaining outages, it should attach the display name of the device in the site information to each appropriate outage
 5. Sends this list of outages to `POST /site-outages/{siteId}` for the site with the ID `norwich-pear-tree`
 
