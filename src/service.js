@@ -3,7 +3,7 @@ const helpers = require('./helpers')
 
 const SITE_NAME = 'norwich-pear-tree'
 
-module.exports.find_upload_outages_for_site = async (site_name=SITE_NAME) => {
+module.exports.find_upload_outages_for_site = async (site_name=SITE_NAME, date=null) => {
     
     let uploaded_response = null;
     try {
@@ -18,7 +18,7 @@ module.exports.find_upload_outages_for_site = async (site_name=SITE_NAME) => {
         console.log(" - Site's devices \n - Date");
         console.log();
 
-        const outages_to_upload = helpers.filter_outages(outages, site_info);
+        const outages_to_upload = helpers.filter_outages(outages, site_info, date);
 
         console.log('Step 3: Upload the outages for the specific site')
         console.log();
@@ -27,10 +27,9 @@ module.exports.find_upload_outages_for_site = async (site_name=SITE_NAME) => {
 
         console.log(uploaded_response)
     } catch (error) {
-        console.error(error);
+        console.error(error.name)
+        console.error(error.message);
     }
 
     return uploaded_response;
 }
-
-this.find_upload_outages_for_site();

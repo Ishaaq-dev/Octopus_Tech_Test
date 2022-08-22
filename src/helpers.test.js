@@ -75,6 +75,17 @@ describe("filter_outages function", () => {
       expect(response).toEqual([]);
     });
   });
+  describe("uses current date year", () => {
+    it("when date is incorrectly supplied", () => {
+      const response = helpers.filter_outages(
+        test_data.mock_outages,
+        test_data.mock_site_info,
+        "this is an incorrect date"
+      );
+
+      expect(response).toEqual(correct_responses.mock_outages_to_upload);
+    });
+  });
 });
 
 describe("get_device_name function", () => {

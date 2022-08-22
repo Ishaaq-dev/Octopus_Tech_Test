@@ -1,6 +1,12 @@
 const EARLIEST_DATE = new Date(String(new Date().getFullYear()));
 
 module.exports.filter_outages = (outages, site_info, earliest_date=EARLIEST_DATE) => {
+    if(!isNaN(Date.parse(earliest_date))) {
+        earliest_date = new Date(earliest_date);
+    } else {
+        console.log('using ' + EARLIEST_DATE.toISOString());
+        earliest_date=EARLIEST_DATE;
+    }
     if (!Array.isArray(outages) || !site_info) {
         console.log('You must pass both:\n - an array of `outages` \n - `site_info`');
         return false;

@@ -69,8 +69,11 @@ module.exports.make_request = async (endpoint, payload=false) => {
         status_code = response.status;
         retry_counter++;
     }
-    if (status_code === 500) {
+    if (response.status === 500) {
         throw new Error('Error occurred communicating with API, reached retry limit');
+    }
+    if (response.status === 404) {
+        throw new Error(endpoint + ' not found')
     }
     return response
 }
