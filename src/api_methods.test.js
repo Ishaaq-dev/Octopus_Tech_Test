@@ -1,6 +1,5 @@
 var axios = require("axios");
-jest.mock('axios')
-jest.spyOn(console, 'error');
+jest.mock('axios');
 jest.spyOn(console, 'log');
 
 const api_methods = require('./api_methods');
@@ -28,28 +27,30 @@ describe('make_request() function', () => {
 
     describe('makes the correct request', () => {
         it('when given a payload it makes a POST request', async () => {
-            axios.get.mockRejectedValue('GET request should not have been made');
-            axios.post.mockResolvedValue({
+            const data = {
                 status: 200,
                 data:'POST request has been made'
-            });
+            };
+            axios.get.mockRejectedValue('GET request should not have been made');
+            axios.post.mockResolvedValue(data);
 
             const response = await api_methods.make_request('/test', {payload: 'hello world'});
             expect(axios.post).toHaveBeenCalledTimes(1);
             expect(axios.get).toHaveBeenCalledTimes(0);
-            expect(response).toEqual('POST request has been made');
+            expect(response).toEqual(data);
         });
         it('when no payload is given it makes a GET request', async () => {
-            axios.post.mockRejectedValue('POST request should not have been made');
-            axios.get.mockResolvedValue({
+            const data = {
                 status: 200,
                 data:'GET request has been made'
-            });
+            };
+            axios.post.mockRejectedValue('POST request should not have been made');
+            axios.get.mockResolvedValue(data);
 
             const response = await api_methods.make_request('/test');
             expect(axios.post).toHaveBeenCalledTimes(0);
             expect(axios.get).toHaveBeenCalledTimes(1);
-            expect(response).toEqual('GET request has been made');
+            expect(response).toEqual(data);
         });
     });
 
@@ -89,6 +90,7 @@ describe('make_request() function', () => {
             expect(axios.post).toHaveBeenCalledTimes(3);
             expect(axios.get).toHaveBeenCalledTimes(0);
             expect(error).toEqual(new Error('Error occurred communicating with API, reached retry limit'));
+            expect(response).toEqual(null);
         });
     })
 });
@@ -97,25 +99,28 @@ describe('get_outages() function', () => {
     describe('returns empty array', () => {
         it('when api errors', async () => {
             axios.get.mockRejectedValue('simulated error');
-            const response = await api_methods.get_outages();
+            let response = null, error = null;
+            try {
+                response = await api_methods.get_outages();
+            } catch (err) {
+                error = err;
+            }
             expect(axios.get).toHaveBeenCalledTimes(1);
             expect(axios.post).toHaveBeenCalledTimes(0);
-            expect(console.error).toHaveBeenCalledTimes(1);
-            expect(console.log).toHaveBeenCalledTimes(1);
-            expect(response).toEqual([]);
+            expect(error).toEqual('simulated error');
+            expect(response).toEqual(null);
         });
 
         it('when api responds with 200 status but empty array', async () => {
-            axios.get.mockResolvedValue({
+            const data = {
                 status: 200,
                 data: []
-            });
+            };
+            axios.get.mockResolvedValue(data);
             const response = await api_methods.get_outages();
             expect(axios.get).toHaveBeenCalledTimes(1);
             expect(axios.post).toHaveBeenCalledTimes(0);
-            expect(console.error).toHaveBeenCalledTimes(0);
-            expect(console.log).toHaveBeenCalledTimes(1);
-            expect(response).toEqual([])
+            expect(response).toEqual(data.data)
         });
     });
 
@@ -127,7 +132,6 @@ describe('get_outages() function', () => {
         const response = await api_methods.get_outages();
         expect(axios.get).toHaveBeenCalledTimes(1);
         expect(axios.post).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenCalledTimes(0);
         expect(console.log).toHaveBeenCalledTimes(0);
         expect(response).toEqual(test_data.mock_outages);
     });
@@ -155,12 +159,17 @@ describe('get_site_info() function', () => {
     describe('returns empty object', () => {
         it('when api call fails', async () => {
             axios.get.mockRejectedValue('simulated error');
-            const response = await api_methods.get_site_info('test');
+            let response = null, error = null;
+            try {
+                response = await api_methods.get_site_info('test');
+            } catch (err) {
+                error = err;
+            }
             expect(axios.get).toHaveBeenCalledTimes(1);
             expect(axios.post).toHaveBeenCalledTimes(0);
-            expect(console.error).toHaveBeenCalledTimes(1);
-            expect(console.log).toHaveBeenCalledTimes(1);
-            expect(response).toEqual({});
+            expect(console.log).toHaveBeenCalledTimes(0);
+            expect(error).toEqual('simulated error')
+            expect(response).toEqual(null);
         });
         it('when api returns 200 status but empty object', async () => {
             axios.get.mockResolvedValue({
@@ -170,8 +179,7 @@ describe('get_site_info() function', () => {
             const response = await api_methods.get_site_info('test');
             expect(axios.get).toHaveBeenCalledTimes(1);
             expect(axios.post).toHaveBeenCalledTimes(0);
-            expect(console.error).toHaveBeenCalledTimes(0);
-            expect(console.log).toHaveBeenCalledTimes(1);
+            expect(console.log).toHaveBeenCalledTimes(0);
             expect(response).toEqual({});
         });
 
@@ -184,7 +192,6 @@ describe('get_site_info() function', () => {
         const response = await api_methods.get_site_info('test');
         expect(axios.get).toHaveBeenCalledTimes(1);
         expect(axios.post).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenCalledTimes(0);
         expect(console.log).toHaveBeenCalledTimes(0);
         expect(response).toEqual(test_data.mock_site_info)
     })
@@ -216,11 +223,16 @@ describe('post_site_outages() function', () => {
     });
     it('returns empty object when api call fails', async () => {
         axios.post.mockRejectedValue('simulated error');
-        const response = await api_methods.post_site_outages('test', {payload: 'payload'});
+        let response = null, error = null;
+        try {
+            response = await api_methods.post_site_outages('test', {payload: 'payload'});
+        } catch (err) {
+            error = err;
+        }
         expect(axios.post).toHaveBeenCalledTimes(1);
         expect(axios.get).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenCalledTimes(1);
-        expect(response).toEqual({});
+        expect(error).toEqual('simulated error');
+        expect(response).toEqual(null);
     });
     it('successfully returns data when api returns 200 status', async () => {
         const data = {
@@ -231,8 +243,22 @@ describe('post_site_outages() function', () => {
         const response = await api_methods.post_site_outages('test', {payload: 'payload'});
         expect(axios.post).toHaveBeenCalledTimes(1);
         expect(axios.get).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenCalledTimes(0);
+        expect(console.log).toHaveBeenCalledTimes(1);
+        expect(console.log).toHaveBeenCalledWith('site outages have successfully been uploaded');
         expect(response).toEqual(data);
     });
+    it('successfully returns data when api returns anything but 200 or 500 status code', async () => {
+        const data = {
+            status: 400,
+            data: 'site outages upload unsuccessful'
+        };
+        axios.post.mockResolvedValue(data);
+        const response = await api_methods.post_site_outages('test', {payload: 'payload'});
+        expect(axios.post).toHaveBeenCalledTimes(1);
+        expect(axios.get).toHaveBeenCalledTimes(0);
+        expect(console.log).toHaveBeenCalledTimes(1);
+        expect(console.log).toHaveBeenCalledWith('site outages have not successfully been uploaded');
+        expect(response).toEqual(data);
+    })
 
 })

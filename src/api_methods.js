@@ -4,13 +4,11 @@ module.exports.get_outages = async () => {
     let outages = [];
     try {
         outages = await this.make_request("/outages");
+        outages = outages.data;
     } catch (error) {
-        console.error(error);
+        throw error;
     }
-    if (outages.data.length === 0)
-        console.log('No outages retrieved');
-
-    return outages.data;
+    return outages;
 }
   
 module.exports.get_site_info = async (site_name) => {
@@ -21,14 +19,12 @@ module.exports.get_site_info = async (site_name) => {
     let site_info = {};
     try {
         site_info = await this.make_request("/site-info/" + site_name);
+        site_info = site_info.data;
     } catch (error) {
-        console.error(error);
+        throw error;
     }
 
-    if (Object.keys(site_info.data).length === 0) {
-      console.log(`No info on ${site_name} retrieved`);
-    }
-    return site_info.data;
+    return site_info;
 }
 
 module.exports.post_site_outages = async (site_name, payload) => {
@@ -40,14 +36,21 @@ module.exports.post_site_outages = async (site_name, payload) => {
     let response = {};
     try {
         response = await this.make_request('/site-outages/' + site_name, payload);
+        response = {
+            status: response.status,
+            data: response.data
+        }
     } catch (error) {
-        console.error(error);
+        throw error;
     }
 
-    return {
-        status: response.status,
-        message: response.data
+    if (response.status === 200) {
+        console.log('site outages have successfully been uploaded');
+    } else {
+        console.log('site outages have not successfully been uploaded')
     }
+
+    return response;
 }
 
 module.exports.make_request = async (endpoint, payload=false) => {
